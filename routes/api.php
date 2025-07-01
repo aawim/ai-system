@@ -12,3 +12,5 @@ Route::get('/students', [StudentController::class, 'index']);
 Route::post('/students', [StudentController::class, 'store']);
 Route::post('/students/{id}/evaluate', [StudentController::class, 'evaluate']);
 Route::post('/students/evaluate-bulk', [StudentController::class, 'evaluateBulk']);
+// Route::post('/students/export', [StudentController::class, 'exportSelected']);
+Route::post('/students/export', [StudentController::class, 'export']);

@@ -8,33 +8,6 @@ const selectAll = ref(false)
 const loading = ref(false)
 const loadingId = ref(null)
 
-const loadingExport = ref(false)
-
-async function exportSelected() {
-  loadingExport.value = true
-  try {
-    const response = await axios.post(
-      'http://127.0.0.1:8000/api/students/export',
-      { ids: selected.value },
-      { responseType: 'blob' } // important for binary data
-    )
-
-    const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
-    const url = window.URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.setAttribute('download', 'student_export.xlsx')
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  } catch (error) {
-    console.error('Export failed:', error)
-  } finally {
-    loadingExport.value = false
-  }
-}
-
-
 onMounted(async () => {
   const { data } = await axios.get('http://127.0.0.1:8000/api/students')
   students.value = data
@@ -94,82 +67,33 @@ async function evaluateSelected() {
 }
 </script>
 
-
 <template >
   <div class="p-6 bg-white rounded-lg shadow-md w-10/12 ">
     <h2 class="text-2xl font-bold text-gray-800 mb-6">Student Evaluations</h2>
 
     <!-- Bulk Evaluate Button -->
-<div class="flex justify-between items-center mb-4">
-  <div class="text-sm text-gray-500">
-    Selected: {{ selected.length }} / {{ students.length }}
-  </div>
-
-  <!-- Buttons container -->
-  <div class="flex gap-3">
-    <!-- Evaluate Button -->
-    <button
-      @click="evaluateSelected"
-      :disabled="selected.length === 0 || hasEvaluatedSelected || loading"
-      class="bg-blue-600 text-white px-4 py-2 rounded flex items-center gap-2 disabled:opacity-50"
-    >
-      <svg
-        v-if="loading"
-        class="animate-spin h-4 w-4 text-white"
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
+    <div class="flex justify-between items-center mb-4">
+      <div class="text-sm text-gray-500">
+        Selected: {{ selected.length }} / {{ students.length }}
+      </div>
+      <button
+        @click="evaluateSelected"
+        :disabled="selected.length === 0 || hasEvaluatedSelected || loading"
+        class="bg-blue-600 text-white px-4 py-2 rounded flex items-center gap-2 disabled:opacity-50"
       >
-        <circle
-          class="opacity-25"
-          cx="12"
-          cy="12"
-          r="10"
-          stroke="currentColor"
-          stroke-width="4"
-        />
-        <path
-          class="opacity-75"
-          fill="currentColor"
-          d="M4 12a8 8 0 018-8v8H4z"
-        />
-      </svg>
-      <span>Evaluate Selected ({{ selected.length }})</span>
-    </button>
-
-    <!-- Export Button -->
-    <button
-      @click="exportSelected"
-      :disabled="selected.length === 0 || loadingExport"
-      class="bg-green-600 text-white px-4 py-2 rounded flex items-center gap-2 disabled:opacity-50"
-    >
-      <svg
-        v-if="loadingExport"
-        class="animate-spin h-4 w-4 text-white"
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-      >
-        <circle
-          class="opacity-25"
-          cx="12"
-          cy="12"
-          r="10"
-          stroke="currentColor"
-          stroke-width="4"
-        />
-        <path
-          class="opacity-75"
-          fill="currentColor"
-          d="M4 12a8 8 0 018-8v8H4z"
-        />
-      </svg>
-      <span>Export to Excel</span>
-    </button>
-  </div>
-</div>
-
-
+        <svg
+          v-if="loading"
+          class="animate-spin h-4 w-4 text-white"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+        </svg>
+        <span>Evaluate Selected ({{ selected.length }})</span>
+      </button>
+    </div>
 
     <!-- Table -->
     <div class="overflow-x-auto relative">
@@ -237,24 +161,12 @@ async function evaluateSelected() {
             </td>
 
             <td class="px-6 py-4 whitespace-nowrap">
-               <button
+                <button
                 v-if="!selected.includes(s.id) && !s.evaluation_reason"
                 @click="evaluate(s.id)"
-                class="px-3 py-1 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700 disabled:opacity-50"
-                :disabled="loadingId === s.id"
-              >
-                <svg
-                  v-if="loadingId === s.id"
-                  class="animate-spin h-4 w-4 text-white inline-block mr-1"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
-                </svg>
-                <span>Evaluate</span>
-              </button>
+                class="px-3 py-1 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors">
+                Evaluate
+                </button>
             </td>
             </tr>
 

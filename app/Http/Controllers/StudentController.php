@@ -6,7 +6,10 @@ use App\Models\Student;
 
 use App\Models\ClassModel;
 use Illuminate\Http\Request;
+use App\Exports\StudentsExport;
 use OpenAI\Laravel\Facades\OpenAI;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\SelectedStudentsExport;
 use App\Services\StudentQualificationService;
 
 class StudentController extends Controller
@@ -83,5 +86,23 @@ class StudentController extends Controller
         }
 
         return response()->json(['results' => $results]);
+    }
+
+
+    // public function exportSelected(Request $request)
+    // {
+    //     $ids = $request->input('ids', []);
+
+    //     if (empty($ids)) {
+    //         return response()->json(['message' => 'No students selected'], 400);
+    //     }
+
+    //     return Excel::download(new StudentsExport($ids), 'selected-students.xlsx');
+    // }
+
+    public function export(Request $request)
+    {
+        $ids = $request->input('ids', []);
+        return Excel::download(new SelectedStudentsExport($ids), 'students.xlsx');
     }
 }
